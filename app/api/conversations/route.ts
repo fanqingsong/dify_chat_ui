@@ -1,19 +1,34 @@
-import { type NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { client, getInfo, setSession } from '@/app/api/utils/common'
+import { type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
-  const { sessionId, user } = getInfo(request)
   try {
-    const { data }: any = await client.getConversations(user)
-    return NextResponse.json(data, {
-      headers: setSession(sessionId),
-    })
-  }
-  catch (error: any) {
+    // 返回模拟的对话列表
     return NextResponse.json({
-      data: [],
-      error: error.message,
+      data: [
+        {
+          id: 'conv_1',
+          name: '示例对话 1',
+          inputs: {},
+          introduction: '这是第一个示例对话',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: 'conv_2',
+          name: '示例对话 2',
+          inputs: {},
+          introduction: '这是第二个示例对话',
+          created_at: new Date(Date.now() - 3600000).toISOString() // 1小时前
+        }
+      ],
+      has_more: false,
+      limit: 100
     })
+  } catch (error) {
+    console.error('Conversations API error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch conversations' },
+      { status: 500 }
+    )
   }
 }

@@ -2,29 +2,34 @@
 import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import useAuth from '@/hooks/use-auth'
 
-type IAppUnavailableProps = {
-  isUnknownReason: boolean
-  errMessage?: string
-}
-
-const AppUnavailable: FC<IAppUnavailableProps> = ({
-  isUnknownReason,
-  errMessage,
-}) => {
+const AppUnavailable: FC = () => {
   const { t } = useTranslation()
-  let message = errMessage
-  if (!errMessage)
-    message = (isUnknownReason ? t('app.common.appUnkonwError') : t('app.common.appUnavailable')) as string
+  const { logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout()
+  }
 
   return (
-    <div className='flex items-center justify-center w-screen h-screen'>
-      <h1 className='mr-5 h-[50px] leading-[50px] pr-5 text-[24px] font-medium'
-        style={{
-          borderRight: '1px solid rgba(0,0,0,.3)',
-        }}>{(errMessage || isUnknownReason) ? 500 : 404}</h1>
-      <div className='text-sm'>{message}</div>
+    <div className='flex flex-col justify-center items-center w-full h-full'>
+      <div className='w-[480px] text-center'>
+        <div className='flex justify-center mb-3'>
+          <span className='text-xl text-gray-800 font-semibold'>{t('common.appUnavailable')}</span>
+        </div>
+        <div className='text-sm text-gray-500 mb-5'>
+          {t('error.appUnavailableDescription') || '抱歉，应用程序当前不可用，可能是因为配置问题。'}
+        </div>
+        <button
+          onClick={handleLogout}
+          className="w-32 py-2 mx-auto border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          {t('auth.logout')}
+        </button>
+      </div>
     </div>
   )
 }
+
 export default React.memo(AppUnavailable)

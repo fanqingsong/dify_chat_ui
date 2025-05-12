@@ -16,6 +16,14 @@ const nextConfig = {
     // https://nextjs.org/docs/api-reference/next.config.js/ignoring-typescript-errors
     ignoreBuildErrors: true,
   },
+  webpack: (config, { isServer }) => {
+    // 修改 webpack 配置
+    config.watchOptions = {
+      poll: 1000,
+      aggregateTimeout: 300,
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

@@ -2,6 +2,7 @@ import { API_PREFIX } from '@/config'
 import Toast from '@/app/components/base/toast'
 import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/chat/type'
 import type { VisionFile } from '@/types/app'
+import { getToken } from '@/utils/auth'
 
 const TIME_OUT = 100000
 
@@ -249,6 +250,15 @@ const handleStream = (
 }
 
 const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: IOtherOptions) => {
+  // Add authorization header if token exists
+  const token = getToken()
+  if (token) {
+    fetchOptions.headers = {
+      ...fetchOptions.headers,
+      'Authorization': `Bearer ${token}`
+    }
+  }
+
   const options = Object.assign({}, baseOptions, fetchOptions)
 
   const urlPrefix = API_PREFIX
