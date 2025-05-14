@@ -1,8 +1,9 @@
 'use client'
 
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useState, useRef } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSession } from 'next-auth/react'
 import useAuth from '@/hooks/use-auth'
 import Toast from '@/app/components/base/toast'
 import AppIcon from '@/app/components/base/app-icon'
@@ -24,21 +25,128 @@ const Header = ({
 }: IHeaderProps) => {
   const { t } = useTranslation()
   const auth = useAuth()
+  const { data: session } = useSession()
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+  const [userData, setUserData] = useState<{ name: string, email: string }>({ name: '', email: '' })
+
+  // 先从会话获取用户信息，优先级高
+  useEffect(() => {
+    if (session?.user) {
+      setUserData({
+        name: session.user.name || '',
+        email: session.user.email || ''
+      })
+    }
+  }, [session])
+
+  // 如果会话中没有用户信息，尝试从localStorage获取
+  useEffect(() => {
+    // 初始化认证状态
+    auth.initialize()
+
+    // 从localStorage获取用户信息
+    const getUserFromLocalStorage = () => {
+      try {
+        const userStr = localStorage.getItem('next-auth.user')
+        if (userStr) {
+          const user = JSON.parse(userStr)
+          if (user && (user.name || user.email)) {
+            setUserData({
+              name: user.name || '',
+              email: user.email || ''
+            })
+            return true
+          }
+        }
+        return false
+      } catch (e) {
+        console.error('Error parsing user data:', e)
+        return false
+      }
+    }
+
+    // 从会话存储获取用户信息
+    const getUserFromSessionStorage = () => {
+      try {
+        const sessionStr = sessionStorage.getItem('nextauth.session')
+        if (sessionStr) {
+          const sessionData = JSON.parse(sessionStr)
+          if (sessionData?.user) {
+            setUserData({
+              name: sessionData.user.name || '',
+              email: sessionData.user.email || ''
+            })
+            return true
+          }
+        }
+        return false
+      } catch (e) {
+        console.error('Error parsing session data:', e)
+        return false
+      }
+    }
+
+    // 如果auth.user存在，使用它更新用户数据
+    if (auth.user && (auth.user.name || auth.user.email)) {
+      setUserData({
+        name: auth.user.name || '',
+        email: auth.user.email || ''
+      })
+    }
+    // 否则尝试从localStorage或sessionStorage获取
+    else if (!getUserFromSessionStorage()) {
+      getUserFromLocalStorage()
+    }
+  }, [auth])
+
+  // 点击其他地方关闭用户菜单
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const handleLogout = async () => {
     try {
       await auth.logout()
       Toast.notify({
         type: 'success',
-        message: t('auth.logoutSuccess'),
+        message: t('auth.LogoutSuccess'),
       })
+      setShowUserMenu(false)
     } catch (error) {
       Toast.notify({
         type: 'error',
-        message: t('auth.logoutFailed'),
+        message: t('auth.LogoutFailed'),
       })
     }
   }
+
+  // 创建用户头像显示的文字
+  const getInitials = () => {
+    if (userData.name) {
+      return userData.name.charAt(0).toUpperCase();
+    }
+
+    if (userData.email) {
+      return userData.email.charAt(0).toUpperCase();
+    }
+
+    return 'U'; // 默认显示U (User的首字母)
+  }
+
+  // 调试信息，帮助定位问题
+  console.log('Header userData:', userData)
+  console.log('Session user:', session?.user)
+  console.log('Auth user:', auth.user)
 
   return (
     <div className="flex items-center justify-between px-6 h-14 border-b border-gray-100 shrink-0">
@@ -63,12 +171,33 @@ const Header = ({
             {t('app.chat.newChat') || '新对话'}
           </button>
         )}
-        <button
-          onClick={handleLogout}
-          className="flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 border border-gray-200 rounded-md hover:bg-gray-100"
-        >
-          {t('auth.logout') || '退出登录'}
-        </button>
+
+        {/* 用户头像和下拉菜单 */}
+        <div className="relative" ref={userMenuRef}>
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none"
+          >
+            {getInitials()}
+          </button>
+
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+              <div className="px-4 py-2 border-b border-gray-100">
+                <div className="font-medium text-sm text-gray-800">{userData.name || userData.email}</div>
+                {userData.name && userData.email && userData.name !== userData.email && (
+                  <div className="text-xs text-gray-500 truncate">{userData.email}</div>
+                )}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                {t('auth.Logout') || '退出登录'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

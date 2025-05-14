@@ -15,6 +15,7 @@ import toolsEn from './lang/tools.en'
 import toolsZh from './lang/tools.zh'
 import toolsVi from './lang/tools.vi'
 import toolsJa from './lang/tools.ja'
+import authZh from './lang/auth.zh'
 
 import type { Locale } from '.'
 
@@ -39,6 +40,7 @@ const resources = {
       app: appZh,
       // tools
       tools: toolsZh,
+      auth: authZh,
     },
   },
   'vi': {
@@ -63,8 +65,8 @@ i18n.use(initReactI18next)
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    lng: 'en',
-    fallbackLng: 'en',
+    lng: 'zh-Hans',
+    fallbackLng: 'zh-Hans',
     // debug: true,
     resources,
   })

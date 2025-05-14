@@ -13,7 +13,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
     const { t } = useTranslation()
     const auth = useAuth()
 
-    const [username, setUsername] = useState('')
+    const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -22,10 +22,10 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!username || !email || !password || !confirmPassword) {
+        if (!name || !email || !password || !confirmPassword) {
             Toast.notify({
                 type: 'error',
-                message: t('auth.validation.allFieldsRequired'),
+                message: t('auth.Validation.AllFieldsRequired'),
             })
             return
         }
@@ -33,7 +33,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
         if (password !== confirmPassword) {
             Toast.notify({
                 type: 'error',
-                message: t('auth.validation.passwordsDoNotMatch'),
+                message: t('auth.Validation.PasswordsDoNotMatch'),
             })
             return
         }
@@ -41,15 +41,15 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
         setIsLoading(true)
 
         try {
-            await auth.register({ username, email, password })
+            await auth.register({ name, email, password })
             Toast.notify({
                 type: 'success',
-                message: t('auth.registerSuccess'),
+                message: t('auth.RegisterSuccess'),
             })
         } catch (error: any) {
             Toast.notify({
                 type: 'error',
-                message: error.message || t('auth.registerFailed'),
+                message: error.message || t('auth.RegisterFailed'),
             })
         } finally {
             setIsLoading(false)
@@ -59,19 +59,19 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
     return (
         <div className="flex flex-col w-full max-w-md px-8 py-10 bg-white rounded-xl shadow-md">
             <h2 className="mb-6 text-2xl font-bold text-center text-gray-900">
-                {t('auth.register')}
+                {t('auth.Register')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                        {t('auth.username')}
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                        {t('auth.Username')}
                     </label>
                     <input
-                        id="username"
+                        id="name"
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
@@ -79,7 +79,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
 
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                        {t('auth.email')}
+                        {t('auth.Email')}
                     </label>
                     <input
                         id="email"
@@ -93,7 +93,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
 
                 <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                        {t('auth.password')}
+                        {t('auth.Password')}
                     </label>
                     <input
                         id="password"
@@ -107,7 +107,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
 
                 <div>
                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                        {t('auth.confirmPassword')}
+                        {t('auth.ConfirmPassword')}
                     </label>
                     <input
                         id="confirmPassword"
@@ -125,19 +125,19 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
                         disabled={isLoading}
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isLoading ? t('auth.registering') : t('auth.registerButton')}
+                        {isLoading ? t('auth.Registering') : t('auth.RegisterButton')}
                     </button>
                 </div>
             </form>
 
             <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
-                    {t('auth.haveAccount')}{' '}
+                    {t('auth.HaveAccount')}{' '}
                     <button
                         onClick={onSwitchToLogin}
                         className="font-medium text-blue-600 hover:text-blue-500"
                     >
-                        {t('auth.signIn')}
+                        {t('auth.SignIn')}
                     </button>
                 </p>
             </div>

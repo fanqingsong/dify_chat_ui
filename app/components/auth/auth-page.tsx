@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from 'react-i18next'
 import Login from './login'
 import Register from './register'
 
 const AuthPage = () => {
+    const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
     const router = useRouter()
     const { data: session, status } = useSession()
@@ -40,7 +42,7 @@ const AuthPage = () => {
                             }`}
                         onClick={handleSwitchToLogin}
                     >
-                        登录
+                        {t('auth.Login')}
                     </button>
                     <button
                         className={`flex-1 py-2 px-1 text-center font-medium text-sm border-b-2 ${activeTab === 'register'
@@ -49,7 +51,7 @@ const AuthPage = () => {
                             }`}
                         onClick={handleSwitchToRegister}
                     >
-                        注册
+                        {t('auth.Register')}
                     </button>
                 </div>
 

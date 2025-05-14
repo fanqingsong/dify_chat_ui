@@ -26,6 +26,30 @@ const translation = {
   variableTable: {
     optional: '可选',
   },
+  auth: {
+    login: '登录',
+    register: '注册',
+    email: '邮箱地址',
+    password: '密码',
+    username: '用户名',
+    confirmPassword: '确认密码',
+    loginButton: '登录',
+    registerButton: '注册',
+    loggingIn: '登录中...',
+    registering: '注册中...',
+    loginSuccess: '登录成功',
+    registerSuccess: '注册成功，请等待管理员激活账户',
+    loginFailed: '登录失败',
+    registerFailed: '注册失败',
+    noAccount: '还没有账户?',
+    haveAccount: '已有账户?',
+    signUp: '立即注册',
+    signIn: '立即登录',
+    validation: {
+      allFieldsRequired: '所有字段必填',
+      passwordsDoNotMatch: '两次密码输入不一致',
+    }
+  },
 }
 
 export default translation
