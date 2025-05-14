@@ -1,19 +1,6 @@
-import { post } from './base'
+// Import adapter functions from nextauth-adapter
+import { login, register, logout, getCurrentUser } from './nextauth-adapter'
 import type { LoginRequest, RegisterRequest, AuthResponse } from '@/types/user'
 
-export const login = async (credentials: LoginRequest): Promise<AuthResponse> => {
-    return post('auth/login', { body: credentials }) as Promise<AuthResponse>
-}
-
-export const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
-    return post('auth/register', { body: userData }) as Promise<AuthResponse>
-}
-
-export const logout = async (): Promise<void> => {
-    await post('auth/logout', {})
-    return
-}
-
-export const getCurrentUser = async (): Promise<AuthResponse> => {
-    return post('auth/me', {}) as Promise<AuthResponse>
-} 
+// Export the adapter functions directly
+export { login, register, logout, getCurrentUser } 

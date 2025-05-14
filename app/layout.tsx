@@ -1,25 +1,22 @@
-import { getLocaleOnServer } from '@/i18n/server'
-
-import './styles/globals.css'
+import './globals.css'
 import './styles/markdown.scss'
+import { Inter } from 'next/font/google'
+import { AuthProvider } from '@/providers/auth-provider'
 
-const LocaleLayout = ({
+const inter = Inter({ subsets: ['latin'] })
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
-}) => {
-  const locale = getLocaleOnServer()
+}) {
   return (
-    <html lang={locale ?? 'en'} className="h-full">
-      <body className="h-full">
-        <div className="overflow-x-auto">
-          <div className="w-screen h-screen min-w-[300px]">
-            {children}
-          </div>
-        </div>
+    <html lang="en">
+      <body className={inter.className}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
 }
-
-export default LocaleLayout

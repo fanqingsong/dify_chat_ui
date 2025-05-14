@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import useAuth from '@/hooks/use-auth'
+import { useSession } from 'next-auth/react'
 import Loading from '@/app/components/base/loading'
 
 interface ProtectedRouteProps {
@@ -11,44 +11,28 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     const router = useRouter()
-    const { isAuthenticated, initialize } = useAuth()
+    const { data: session, status } = useSession()
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                initialize()
-            } catch (error) {
-                console.error('Authentication initialization error:', error)
-            } finally {
-                // 无论如何都结束加载状态，避免无限加载
-                setIsLoading(false)
-            }
-        }
-
-        // 设置超时，确保不会无限加载
-        const timeout = setTimeout(() => {
+        // Set loading to false once session status is determined
+        if (status !== 'loading') {
             setIsLoading(false)
-        }, 3000)
-
-        checkAuth()
-
-        return () => {
-            clearTimeout(timeout)
         }
-    }, [initialize])
+    }, [status])
 
     useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
+        // Redirect to login if not authenticated and not loading
+        if (!isLoading && !session) {
             router.push('/auth')
         }
-    }, [isLoading, isAuthenticated, router])
+    }, [isLoading, session, router])
 
     if (isLoading) {
         return <Loading />
     }
 
-    if (!isAuthenticated) {
+    if (!session) {
         return null
     }
 

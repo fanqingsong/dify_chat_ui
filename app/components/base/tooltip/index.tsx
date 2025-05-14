@@ -1,7 +1,7 @@
 'use client'
 import classNames from 'classnames'
 import type { FC } from 'react'
-import React from 'react'
+import React, { useState } from 'react'
 import { Tooltip as ReactTooltip } from 'react-tooltip' // fixed version to 5.8.3 https://github.com/ReactTooltip/react-tooltip/issues/972
 import 'react-tooltip/dist/react-tooltip.css'
 
@@ -24,21 +24,30 @@ const Tooltip: FC<TooltipProps> = ({
   className,
   clickable,
 }) => {
+  // Lazy loading tooltip to avoid SSR issues
+  const [tooltipRendered, setTooltipRendered] = useState(false);
+
+  React.useEffect(() => {
+    setTooltipRendered(true);
+  }, []);
+
   return (
     <div className='tooltip-container'>
       {React.cloneElement(children as React.ReactElement, {
         'data-tooltip-id': selector,
       })
       }
-      <ReactTooltip
-        id={selector}
-        content={content}
-        className={classNames('!bg-white !text-xs !font-normal !text-gray-700 !shadow-lg !opacity-100', className)}
-        place={position}
-        clickable={clickable}
-      >
-        {htmlContent && htmlContent}
-      </ReactTooltip>
+      {tooltipRendered && (
+        <ReactTooltip
+          id={selector}
+          content={content}
+          className={classNames('!bg-white !text-xs !font-normal !text-gray-700 !shadow-lg !opacity-100', className)}
+          place={position}
+          clickable={clickable}
+        >
+          {htmlContent && htmlContent}
+        </ReactTooltip>
+      )}
     </div>
   )
 }

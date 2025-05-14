@@ -14,6 +14,13 @@ NEXT_PUBLIC_APP_KEY=
 
 # APP URL: This is the API's base URL. If you're using the Dify cloud service, set it to: https://api.dify.ai/v1.
 NEXT_PUBLIC_API_URL=
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret-key-here
+
+# Database Connection
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/auth_db
 ```
 
 Config more in `config/index.ts` file:   
@@ -40,6 +47,44 @@ yarn
 pnpm install
 ```
 
+### Database Setup
+
+This application uses PostgreSQL with Prisma ORM for database management.
+
+#### Option 1: Use Docker (Recommended)
+
+The easiest way to set up the database is to use Docker:
+
+```bash
+# Start PostgreSQL database
+docker-compose up -d postgres
+```
+
+#### Option 2: Use local PostgreSQL
+
+If you have PostgreSQL installed locally, create a database:
+
+```bash
+createdb auth_db
+```
+
+### Initialize the Database
+
+Run the database initialization script:
+
+```bash
+# Make script executable
+chmod +x scripts/init-db.sh
+
+# Run the script
+./scripts/init-db.sh
+```
+
+This will:
+1. Create a `.env.local` file if it doesn't exist
+2. Set up the database tables
+3. Generate the Prisma client
+
 Then, run the development server:
 
 ```bash
@@ -60,6 +105,50 @@ docker run -p 3000:3000 <DOCKER_HUB_REPO>/webapp-conversation:latest
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Using Docker Compose
+
+Make sure you have an `.env` file in your project root with the required variables as described in the Config App section.
+
+Run the application using Docker Compose:
+
+```bash
+# Start the application in detached mode
+docker-compose up -d
+
+# View logs while the container is running
+docker-compose logs -f
+
+# Stop the container
+docker-compose down
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Authentication System
+
+This application includes a complete authentication system using NextAuth.js with PostgreSQL:
+
+- User registration with password hashing
+- Email/password authentication
+- Session management with JWT
+- Extensible for OAuth providers (Google, GitHub, etc.)
+
+### Test User
+
+After setting up, you can create a new user through the registration page.
+
+### Database Access
+
+To inspect the database:
+
+```bash
+# Using Prisma Studio
+npx prisma studio
+
+# Direct PostgreSQL access
+psql -h localhost -U postgres -d auth_db
+```
 
 ## Learn More
 

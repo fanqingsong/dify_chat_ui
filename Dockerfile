@@ -1,4 +1,5 @@
-FROM --platform=linux/amd64 node:19-bullseye-slim
+# FROM --platform=linux/amd64 node:19-bullseye-slim
+FROM --platform=linux/amd64 m.daocloud.io/docker.io/library/node:19-bullseye-slim
 
 WORKDIR /app
 

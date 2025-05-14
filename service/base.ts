@@ -253,6 +253,8 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
   // Add authorization header if token exists
   const token = getToken()
   if (token) {
+    // 添加注释解释这是为了兼容旧代码
+    // NextAuth.js 通常通过 cookie 自动处理认证，不需要手动添加 Authorization 头
     fetchOptions.headers = {
       ...fetchOptions.headers,
       'Authorization': `Bearer ${token}`
@@ -327,7 +329,16 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
           }
 
           // return data
-          const data = options.headers.get('Content-type') === ContentType.download ? res.blob() : res.json()
+          let contentType = null;
+
+          // 修复 headers.get 不是函数的问题
+          if (options.headers instanceof Headers) {
+            contentType = options.headers.get('Content-type');
+          } else if (typeof options.headers === 'object') {
+            contentType = options.headers['Content-type'] || options.headers['content-type'];
+          }
+
+          const data = contentType === ContentType.download ? res.blob() : res.json();
 
           resolve(needAllResponseContent ? resClone : data)
         })
