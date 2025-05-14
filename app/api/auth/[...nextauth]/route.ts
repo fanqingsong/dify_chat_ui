@@ -22,7 +22,8 @@ export const authOptions: NextAuthOptions = {
                 try {
                     // 查找用户
                     const user = await prisma.user.findUnique({
-                        where: { email: credentials.email }
+                        where: { email: credentials.email },
+                        include: { role: true } // 包含角色信息
                     });
 
                     if (!user || !user.password) {
@@ -38,6 +39,12 @@ export const authOptions: NextAuthOptions = {
                         return null;
                     }
 
+                    // 检查用户是否激活 (管理员可以绕过此检查)
+                    if (!user.isActive && !user.isAdmin) {
+                        console.log('用户未激活:', credentials.email);
+                        throw new Error('您的账户尚未激活，请联系管理员');
+                    }
+
                     console.log('用户登录成功:', credentials.email);
 
                     // 返回用户数据
@@ -45,11 +52,13 @@ export const authOptions: NextAuthOptions = {
                         id: user.id,
                         name: user.name,
                         email: user.email,
-                        image: user.image
+                        image: user.image,
+                        isAdmin: user.isAdmin,
+                        role: user.role?.name || null
                     };
                 } catch (error) {
                     console.error('授权过程中出错:', error);
-                    return null;
+                    throw error; // 抛出错误以便在前端显示
                 }
             }
         })
@@ -58,12 +67,16 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             if (token && session.user) {
                 session.user.id = token.id as string;
+                session.user.isAdmin = token.isAdmin as boolean;
+                session.user.role = token.role as string | null;
             }
             return session;
         },
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.isAdmin = user.isAdmin as boolean;
+                token.role = user.role as string | null;
             }
             return token;
         }

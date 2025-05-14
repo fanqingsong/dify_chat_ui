@@ -9,7 +9,10 @@
     "lint": "next lint",
     "fix": "next lint --fix",
     "eslint-fix": "eslint . --fix",
-    "prepare": "husky install ./.husky"
+    "prepare": "husky install ./.husky",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@floating-ui/react": "^0.26.2",
@@ -32,6 +35,7 @@
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.3.2",
+    "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
     "dify-client": "^2.3.1",
     "eslint": "8.36.0",
@@ -44,6 +48,7 @@
     "js-cookie": "^3.0.1",
     "katex": "^0.16.7",
     "lodash-es": "^4.17.21",
+    "lucide-react": "^0.510.0",
     "mime": "^4.0.7",
     "negotiator": "^0.6.3",
     "next": "^15.3.2",
@@ -66,7 +71,8 @@
     "scheduler": "^0.23.0",
     "server-only": "^0.0.1",
     "swr": "^2.1.0",
-    "tailwind-merge": "^3.2.0",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss-animate": "^1.0.7",
     "use-context-selector": "^1.4.1",
     "uuid": "^9.0.0",
     "zustand": "^4.5.2"

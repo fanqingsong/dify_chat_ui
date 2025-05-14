@@ -10,6 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -17,6 +27,10 @@ model User {
   emailVerified DateTime?
   password      String
   image         String?
+  isAdmin       Boolean   @default(false)
+  isActive      Boolean   @default(false)
+  roleId        String?
+  role          Role?     @relation(fields: [roleId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]

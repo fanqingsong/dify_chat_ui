@@ -30,12 +30,13 @@ export async function POST(req: Request) {
         // 密码加密
         const hashedPassword = await hash(password, 10)
 
-        // 创建用户
+        // 创建用户 - 默认为未激活状态，需要管理员分配角色并激活
         const user = await prisma.user.create({
             data: {
                 name,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                isAdmin: false   // 默认非管理员
             }
         })
 
@@ -44,7 +45,9 @@ export async function POST(req: Request) {
             id: user.id,
             name: user.name,
             email: user.email,
-            createdAt: user.createdAt
+            isActive: user.isActive,
+            createdAt: user.createdAt,
+            message: '注册成功，请等待管理员激活您的账号'
         })
     } catch (error) {
         console.error('注册错误:', error)

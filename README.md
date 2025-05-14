@@ -21,6 +21,9 @@ NEXTAUTH_SECRET=your-secret-key-here
 
 # Database Connection
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/auth_db
+
+# Admin Setup Key (recommended to change in production)
+ADMIN_SECRET_KEY=your-secure-admin-key
 ```
 
 Config more in `config/index.ts` file:   
@@ -96,6 +99,31 @@ pnpm dev
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## First-time Setup: Creating an Admin Account
+
+When you first set up the application, you'll need to create an admin account:
+
+1. Start your application and navigate to: http://localhost:3000/admin-setup
+2. Fill in the following information:
+   - Email: Your admin email address
+   - Password: Create a strong password
+   - Admin Key: Use `admin-setup-123456` (default) or the value you set in ADMIN_SECRET_KEY
+
+This page allows you to:
+- Create a new admin user if the email doesn't exist
+- Convert an existing user to an admin and activate their account
+
+> **Security Note:** For production environments, change the default admin secret key by setting the `ADMIN_SECRET_KEY` environment variable.
+
+## Using the Admin Interface
+
+After creating an admin account:
+
+1. Log in with your admin credentials
+2. Access the admin interface to:
+   - Manage users: Assign roles, activate/deactivate accounts, reset passwords
+   - Manage roles: Create, edit, or disable roles
+
 ## Using Docker
 
 ```
@@ -133,10 +161,15 @@ This application includes a complete authentication system using NextAuth.js wit
 - Email/password authentication
 - Session management with JWT
 - Extensible for OAuth providers (Google, GitHub, etc.)
+- Role-based access control (RBAC)
+- User account activation workflow
 
-### Test User
+### User Registration Flow
 
-After setting up, you can create a new user through the registration page.
+1. Users register through the registration page
+2. New accounts are inactive by default
+3. Admin assigns a role and activates the account
+4. User can now log in
 
 ### Database Access
 
@@ -167,3 +200,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+## Prompt
+
+添加登录和RBAC功能
+```
+good job， 现在注册和登录功能都实现了，下一步我们来实现管理员界面，管理员界面只能由admin账号登录查看，管理员负责两部分的职责：用户管理/ROLE管理。管理员如何管理ROLE： 管理员可以新增/修改/删除/禁用/启用ROLE, 已经确定的三个ROLE是 GEB/ERA/General, 需要预置在ROLE表中。管理员如何管理用户：用户在注册页面注册账户后，此账户默认为禁用状态，管理员登录管理界面后，首先应该分配ROLE的角色给这个新账户，然后启动此账户，此外管理员还可以重置用户账户密码，禁用或者启用账户.
+```
+
+
