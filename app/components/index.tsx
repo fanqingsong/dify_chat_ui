@@ -194,6 +194,12 @@ const Main: FC<IMainProps> = () => {
   const [chatList, setChatList, getChatList] = useGetState<ChatItem[]>([])
   const chatListDomRef = useRef<HTMLDivElement>(null)
   const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
+
+  // 添加对isResponding状态变化的监听
+  useEffect(() => {
+    console.log('isResponding状态变化:', isResponding)
+  }, [isResponding])
+
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const { notify } = Toast
 
@@ -581,6 +587,8 @@ const Main: FC<IMainProps> = () => {
                 })
               })
             setChatList(newListWithAnswer)
+            // 确保消息结束时重置状态
+            setRespondingFalse()
             return
           }
           // not support show citation
@@ -594,6 +602,8 @@ const Main: FC<IMainProps> = () => {
               draft.push({ ...responseItem })
             })
           setChatList(newListWithAnswer)
+          // 确保消息结束时重置状态
+          setRespondingFalse()
         },
         onMessageReplace: (messageReplace) => {
           setChatList(produce(
@@ -641,6 +651,8 @@ const Main: FC<IMainProps> = () => {
                 }
               }
             }))
+            // 工作流结束时重置状态
+            setRespondingFalse()
           }
         },
         onNodeStarted: ({ data }) => {
