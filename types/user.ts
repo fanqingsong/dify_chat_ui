@@ -9,13 +9,13 @@ declare module 'next-auth' {
             email?: string | null;
             image?: string | null;
             isAdmin: boolean;
-            role: string | null;
+            roles?: UserRole[] | null;
         };
     }
 
     interface User {
         isAdmin: boolean;
-        role: string | null;
+        roles?: UserRole[] | null;
     }
 }
 
@@ -30,6 +30,13 @@ export interface RegisterRequest {
     name: string;
     email: string;
     password: string;
+    username?: string; // 兼容nextauth-adapter
+}
+
+// 认证响应
+export interface AuthResponse {
+    user: User;
+    token: string;
 }
 
 // 认证状态
@@ -39,16 +46,26 @@ export interface AuthState {
     isAuthenticated: boolean;
 }
 
+// 用户角色关联
+export interface UserRole {
+    id: string;
+    userId: string;
+    roleId: string;
+    role?: Role | null;
+    createdAt?: Date;
+}
+
 // 用户模型
 export interface User {
     id: string;
+    username?: string | null;  // 兼容nextauth-adapter
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    avatar?: string | null;    // 兼容nextauth-adapter
     isAdmin: boolean;
-    isActive: boolean;
-    role?: Role | null;
-    roleId?: string | null;
+    isActive?: boolean;
+    roles?: UserRole[] | null;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -66,7 +83,7 @@ export interface Role {
 // 用户管理请求
 export interface UserManagementRequest {
     userId: string;
-    roleId?: string;
+    roleIds?: string[];
     isActive?: boolean;
     password?: string;
 }

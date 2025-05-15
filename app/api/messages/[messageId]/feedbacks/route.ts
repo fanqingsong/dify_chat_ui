@@ -9,7 +9,11 @@ export async function POST(request: NextRequest, { params }: {
   const {
     rating,
   } = body
-  const { messageId } = params
+
+  // 先await params对象，然后再访问其属性
+  const resolvedParams = await params;
+  const messageId = resolvedParams.messageId;
+
   const { user } = getInfo(request)
   const { data } = await client.messageFeedback(messageId, rating, user)
   return NextResponse.json(data)

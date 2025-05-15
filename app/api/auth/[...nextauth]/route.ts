@@ -22,8 +22,7 @@ export const authOptions: NextAuthOptions = {
                 try {
                     // 查找用户
                     const user = await prisma.user.findUnique({
-                        where: { email: credentials.email },
-                        include: { role: true } // 包含角色信息
+                        where: { email: credentials.email }
                     });
 
                     if (!user || !user.password) {
@@ -53,8 +52,7 @@ export const authOptions: NextAuthOptions = {
                         name: user.name,
                         email: user.email,
                         image: user.image,
-                        isAdmin: user.isAdmin,
-                        role: user.role?.name || null
+                        isAdmin: user.isAdmin
                     };
                 } catch (error) {
                     console.error('授权过程中出错:', error);
@@ -68,7 +66,6 @@ export const authOptions: NextAuthOptions = {
             if (token && session.user) {
                 session.user.id = token.id as string;
                 session.user.isAdmin = token.isAdmin as boolean;
-                session.user.role = token.role as string | null;
             }
             return session;
         },
@@ -76,7 +73,6 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.isAdmin = user.isAdmin as boolean;
-                token.role = user.role as string | null;
             }
             return token;
         }

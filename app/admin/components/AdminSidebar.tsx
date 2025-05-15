@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
 import { UserIcon, UsersIcon, KeyIcon, HomeIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
 export default function AdminSidebar() {
@@ -44,8 +43,8 @@ export default function AdminSidebar() {
                                 key={item.name}
                                 href={item.href}
                                 className={`flex items-center px-3 py-2 rounded-md ${isActive
-                                        ? 'bg-slate-700 text-white'
-                                        : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                                    ? 'bg-slate-700 text-white'
+                                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                                     }`}
                             >
                                 <item.icon className="h-5 w-5 mr-3" />
@@ -58,13 +57,13 @@ export default function AdminSidebar() {
 
             {/* 侧边栏底部 */}
             <div className="p-4 border-t border-slate-700">
-                <button
-                    onClick={() => signOut({ callbackUrl: '/auth' })}
+                <Link
+                    href="/"
                     className="w-full flex items-center px-3 py-2 text-sm rounded-md text-slate-300 hover:bg-slate-700 hover:text-white"
                 >
                     <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3" />
-                    退出登录
-                </button>
+                    返回对话
+                </Link>
             </div>
         </div>
     );

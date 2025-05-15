@@ -11,8 +11,9 @@ export async function POST(
     const body = await request.json()
     const { auto_generate, name } = body
 
-    // 正确获取并使用动态路由参数
-    const conversationId = params.conversationId
+    // 先await params对象，然后再访问其属性
+    const resolvedParams = await params;
+    const conversationId = resolvedParams.conversationId;
 
     // 获取用户信息
     const { user } = getInfo(request)

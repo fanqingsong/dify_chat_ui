@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react'
 import useAuth from '@/hooks/use-auth'
 import Toast from '@/app/components/base/toast'
 import AppIcon from '@/app/components/base/app-icon'
+import Link from 'next/link'
 
 export type IHeaderProps = {
   title?: string | React.ReactNode
@@ -28,14 +29,20 @@ const Header = ({
   const { data: session } = useSession()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const [userData, setUserData] = useState<{ name: string, email: string }>({ name: '', email: '' })
+  const [userData, setUserData] = useState<{ name: string, email: string, isAdmin: boolean }>({
+    name: '',
+    email: '',
+    isAdmin: false
+  })
 
   // 先从会话获取用户信息，优先级高
   useEffect(() => {
     if (session?.user) {
+      console.log('Setting userData from session:', session.user);
       setUserData({
         name: session.user.name || '',
-        email: session.user.email || ''
+        email: session.user.email || '',
+        isAdmin: !!session.user.isAdmin // 确保使用双感叹号转换为布尔值
       })
     }
   }, [session])
@@ -49,12 +56,15 @@ const Header = ({
     const getUserFromLocalStorage = () => {
       try {
         const userStr = localStorage.getItem('next-auth.user')
+        console.log('LocalStorage next-auth.user:', userStr);
         if (userStr) {
           const user = JSON.parse(userStr)
+          console.log('Parsed localStorage user:', user);
           if (user && (user.name || user.email)) {
             setUserData({
               name: user.name || '',
-              email: user.email || ''
+              email: user.email || '',
+              isAdmin: !!user.isAdmin // 确保使用双感叹号转换为布尔值
             })
             return true
           }
@@ -70,12 +80,15 @@ const Header = ({
     const getUserFromSessionStorage = () => {
       try {
         const sessionStr = sessionStorage.getItem('nextauth.session')
+        console.log('SessionStorage nextauth.session:', sessionStr);
         if (sessionStr) {
           const sessionData = JSON.parse(sessionStr)
+          console.log('Parsed sessionStorage data:', sessionData);
           if (sessionData?.user) {
             setUserData({
               name: sessionData.user.name || '',
-              email: sessionData.user.email || ''
+              email: sessionData.user.email || '',
+              isAdmin: !!sessionData.user.isAdmin // 确保使用双感叹号转换为布尔值
             })
             return true
           }
@@ -89,9 +102,11 @@ const Header = ({
 
     // 如果auth.user存在，使用它更新用户数据
     if (auth.user && (auth.user.name || auth.user.email)) {
+      console.log('Setting userData from auth.user:', auth.user);
       setUserData({
         name: auth.user.name || '',
-        email: auth.user.email || ''
+        email: auth.user.email || '',
+        isAdmin: !!auth.user.isAdmin // 确保使用双感叹号转换为布尔值
       })
     }
     // 否则尝试从localStorage或sessionStorage获取
@@ -188,7 +203,39 @@ const Header = ({
                 {userData.name && userData.email && userData.name !== userData.email && (
                   <div className="text-xs text-gray-500 truncate">{userData.email}</div>
                 )}
+                <div className="text-xs text-green-600 mt-1">
+                  isAdmin: {userData.isAdmin ? 'true' : 'false'}
+                </div>
               </div>
+
+              {/* 管理员菜单选项 */}
+              {userData.isAdmin && (
+                <>
+                  <Link
+                    href="/admin"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    管理控制台
+                  </Link>
+                  <Link
+                    href="/admin/users"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    用户管理
+                  </Link>
+                  <Link
+                    href="/admin/roles"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    角色管理
+                  </Link>
+                  <div className="border-t border-gray-100"></div>
+                </>
+              )}
+
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

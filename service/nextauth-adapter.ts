@@ -10,6 +10,7 @@ const convertSessionToUser = (session: any): User | null => {
         username: session.user.name || '',
         email: session.user.email || '',
         avatar: session.user.image || '',
+        isAdmin: !!session.user.isAdmin,
     };
 };
 

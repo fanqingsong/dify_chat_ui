@@ -30,25 +30,13 @@ export async function GET(
             );
         }
 
-        const { userId } = params;
+        // 先await params对象
+        const resolvedParams = await params;
+        const userId = resolvedParams.userId;
 
         // 获取用户（不包括密码）
         const user = await prisma.user.findUnique({
-            where: { id: userId },
-            include: { role: true },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                image: true,
-                isAdmin: true,
-                isActive: true,
-                role: true,
-                roleId: true,
-                createdAt: true,
-                updatedAt: true,
-                password: false, // 不返回密码
-            }
+            where: { id: userId }
         });
 
         if (!user) {
@@ -58,7 +46,21 @@ export async function GET(
             );
         }
 
-        return NextResponse.json(user);
+        // 单独获取用户的角色
+        const userRoles = await prisma.$queryRaw`
+            SELECT "UserRoles".id, "UserRoles"."roleId", "Role".name as "roleName", "Role".description
+            FROM "UserRoles"
+            JOIN "Role" ON "UserRoles"."roleId" = "Role".id
+            WHERE "UserRoles"."userId" = ${userId}
+        `;
+
+        // 合并用户信息和角色
+        const userWithRoles = {
+            ...user,
+            roles: userRoles
+        };
+
+        return NextResponse.json(userWithRoles);
     } catch (error: any) {
         console.error('获取用户错误:', error);
         return NextResponse.json(
@@ -83,8 +85,11 @@ export async function PUT(
             );
         }
 
-        const { userId } = params;
-        const { roleId, isActive, password } = await request.json();
+        // 先await params对象
+        const resolvedParams = await params;
+        const userId = resolvedParams.userId;
+
+        const { roleIds, isActive, password } = await request.json();
 
         // 检查用户是否存在
         const existingUser = await prisma.user.findUnique({
@@ -110,34 +115,6 @@ export async function PUT(
         // 准备更新数据
         const updateData: any = {};
 
-        // 如果提供了角色ID，检查角色是否存在
-        if (roleId !== undefined) {
-            if (roleId) {
-                const role = await prisma.role.findUnique({
-                    where: { id: roleId }
-                });
-
-                if (!role) {
-                    return NextResponse.json(
-                        { error: '指定的角色不存在' },
-                        { status: 400 }
-                    );
-                }
-
-                if (!role.isActive) {
-                    return NextResponse.json(
-                        { error: '无法分配已禁用的角色' },
-                        { status: 400 }
-                    );
-                }
-
-                updateData.roleId = roleId;
-            } else {
-                // 如果roleId为空，则移除角色
-                updateData.roleId = null;
-            }
-        }
-
         // 如果提供了激活状态，更新
         if (isActive !== undefined) {
             updateData.isActive = isActive;
@@ -149,28 +126,41 @@ export async function PUT(
             updateData.password = hashedPassword;
         }
 
-        // 更新用户
+        // 角色更新操作 - 使用SQL
+        if (roleIds !== undefined) {
+            // 1. 删除现有角色关联
+            await prisma.$executeRaw`
+                DELETE FROM "UserRoles" WHERE "userId" = ${userId}
+            `;
+
+            // 2. 添加新角色关联
+            if (roleIds.length > 0) {
+                for (const roleId of roleIds) {
+                    await prisma.$executeRaw`
+                        INSERT INTO "UserRoles" ("id", "userId", "roleId", "createdAt")
+                        VALUES (${crypto.randomUUID()}, ${userId}, ${roleId}, NOW())
+                    `;
+                }
+            }
+        }
+
+        // 更新用户基础信息
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: updateData,
-            include: { role: true },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                image: true,
-                isAdmin: true,
-                isActive: true,
-                role: true,
-                roleId: true,
-                createdAt: true,
-                updatedAt: true,
-                password: false, // 不返回密码
-            }
+            data: updateData
         });
+
+        // 获取更新后的角色
+        const updatedRoles = await prisma.$queryRaw`
+            SELECT "UserRoles".id, "UserRoles"."roleId", "Role".name as "roleName", "Role".description
+            FROM "UserRoles"
+            JOIN "Role" ON "UserRoles"."roleId" = "Role".id
+            WHERE "UserRoles"."userId" = ${userId}
+        `;
 
         return NextResponse.json({
             ...updatedUser,
+            roles: updatedRoles,
             message: '用户信息已更新'
         });
     } catch (error: any) {

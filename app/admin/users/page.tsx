@@ -2,12 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserIcon, PencilIcon, KeyIcon } from '@heroicons/react/24/outline';
-import type { User, Role } from '@/types/user';
+import { UserIcon, PencilIcon } from '@heroicons/react/24/outline';
+import type { User, Role, UserRole } from '@/types/user';
+
+// 创建适配API响应的类型
+interface UserWithRoles extends Omit<User, 'roles'> {
+    roles: Array<{
+        id: string;
+        roleId: string;
+        role: Role;
+    }>;
+}
 
 export default function UserManagement() {
     const router = useRouter();
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<UserWithRoles[]>([]);
     const [roles, setRoles] = useState<Role[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -143,8 +152,21 @@ export default function UserManagement() {
                                             {user.isActive ? '已激活' : '未激活'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {user.role?.name || '无角色'}
+                                    <td className="px-6 py-4 whitespace-normal text-sm text-gray-500">
+                                        {user.roles && user.roles.length > 0 ? (
+                                            <div className="flex flex-wrap gap-1">
+                                                {user.roles.map(userRole => (
+                                                    <span
+                                                        key={userRole.id}
+                                                        className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                                                    >
+                                                        {userRole.role?.name || '未知角色'}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            '无角色'
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {user.createdAt ? new Date(user.createdAt).toLocaleString() : '未知'}

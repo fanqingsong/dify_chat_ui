@@ -102,6 +102,18 @@ const Login = ({ onSwitchToRegister }: LoginProps) => {
                         {t('auth.SignUp')}
                     </button>
                 </p>
+
+                {/* 调试链接，仅用于开发环境 */}
+                <p className="mt-2 text-xs text-gray-400">
+                    <a
+                        href="/api/debug/set-admin"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                    >
+                        点击设置当前用户为管理员（调试用）
+                    </a>
+                </p>
             </div>
         </div>
     )
