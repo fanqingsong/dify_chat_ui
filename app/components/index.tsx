@@ -52,7 +52,7 @@ const Main: FC<IMainProps> = () => {
   */
   const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
   const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
-  const [promptConfig, setPromptConfig] = useState<PromptConfig | null>({
+  const [promptConfig, setPromptConfig] = useState<PromptConfig>({
     prompt_template: promptTemplate,
     prompt_variables: [],
   } as PromptConfig)
@@ -101,6 +101,10 @@ const Main: FC<IMainProps> = () => {
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
+
+  // 添加一个标志，控制初始加载时是否直接显示对话界面
+  const [skipWelcomeScreen] = useState(true)
+
   const handleStartChat = (inputs: Record<string, any>) => {
     createNewChat()
     setConversationIdChangeBecauseOfNew(true)
@@ -109,12 +113,33 @@ const Main: FC<IMainProps> = () => {
     // parse variables in introduction
     setChatList(generateNewChatListWithOpenStatement('', inputs))
   }
+
   const hasSetInputs = (() => {
     if (!isNewConversation)
       return true
 
+    // 如果设置了跳过欢迎界面，并且已经初始化完成，则直接返回true
+    if (skipWelcomeScreen && inited)
+      return true
+
     return isChatStarted
   })()
+
+  // 自动开始对话，跳过欢迎界面
+  useEffect(() => {
+    if (inited && isNewConversation && !isChatStarted && promptConfig) {
+      const defaultInputs: Record<string, any> = {}
+      if (promptConfig.prompt_variables) {
+        promptConfig.prompt_variables.forEach((item) => {
+          defaultInputs[item.key] = item.default || ''
+        })
+      }
+      // 添加一个setTimeout，使其在视觉上看不到闪烁
+      setTimeout(() => {
+        handleStartChat(defaultInputs)
+      }, 0)
+    }
+  }, [inited, isNewConversation, isChatStarted, promptConfig])
 
   const conversationName = currConversationInfo?.name || t('app.chat.newChatDefaultName') as string
   const conversationIntroduction = currConversationInfo?.introduction || ''
@@ -742,7 +767,6 @@ const Main: FC<IMainProps> = () => {
         title={APP_INFO.title}
         isMobile={isMobile}
         onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
       />
       <div className="flex rounded-t-2xl bg-white overflow-hidden">
         {/* sidebar */}
@@ -759,33 +783,34 @@ const Main: FC<IMainProps> = () => {
         )}
         {/* main */}
         <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
-          <ConfigSence
-            conversationName={conversationName}
-            hasSetInputs={hasSetInputs}
-            isPublicVersion={isShowPrompt}
-            siteInfo={APP_INFO}
-            promptConfig={promptConfig}
-            onStartChat={handleStartChat}
-            canEditInputs={canEditInputs}
-            savedInputs={currInputs as Record<string, any>}
-            onInputsChange={setCurrInputs}
-          ></ConfigSence>
+          {/* 完全隐藏ConfigSence组件 */}
+          {false && !skipWelcomeScreen && !inited && (
+            <ConfigSence
+              conversationName={conversationName}
+              hasSetInputs={hasSetInputs}
+              isPublicVersion={isShowPrompt}
+              siteInfo={APP_INFO}
+              promptConfig={promptConfig}
+              onStartChat={handleStartChat}
+              canEditInputs={canEditInputs}
+              savedInputs={currInputs as Record<string, any>}
+              onInputsChange={setCurrInputs}
+            ></ConfigSence>
+          )}
 
-          {
-            hasSetInputs && (
-              <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
-                <div className='h-full overflow-y-auto' ref={chatListDomRef}>
-                  <Chat
-                    chatList={chatList}
-                    onSend={handleSend}
-                    onFeedback={handleFeedback}
-                    isResponding={isResponding}
-                    checkCanSend={checkCanSend}
-                    visionConfig={visionConfig}
-                  />
-                </div>
-              </div>)
-          }
+          {/* 始终显示聊天界面 */}
+          <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
+            <div className='h-full overflow-y-auto' ref={chatListDomRef}>
+              <Chat
+                chatList={chatList}
+                onSend={handleSend}
+                onFeedback={handleFeedback}
+                isResponding={isResponding}
+                checkCanSend={checkCanSend}
+                visionConfig={visionConfig}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

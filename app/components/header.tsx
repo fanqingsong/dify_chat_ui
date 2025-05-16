@@ -14,7 +14,6 @@ export type IHeaderProps = {
   icon?: React.ReactNode
   onShowSideBar?: () => void
   isMobile?: boolean
-  onCreateNewChat?: () => void
 }
 
 const Header = ({
@@ -22,7 +21,6 @@ const Header = ({
   icon,
   onShowSideBar,
   isMobile = false,
-  onCreateNewChat,
 }: IHeaderProps) => {
   const { t } = useTranslation()
   const auth = useAuth()
@@ -178,15 +176,6 @@ const Header = ({
       </div>
 
       <div className="flex items-center space-x-2">
-        {isMobile && onCreateNewChat && (
-          <button
-            onClick={onCreateNewChat}
-            className="flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 border border-gray-200 rounded-md hover:bg-gray-100 mr-2"
-          >
-            {t('app.chat.newChat') || '新对话'}
-          </button>
-        )}
-
         {/* 用户头像和下拉菜单 */}
         <div className="relative" ref={userMenuRef}>
           <button

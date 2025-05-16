@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     // 返回模拟数据
     return NextResponse.json({
       user_input_form: [], // 空的用户输入表单
-      opening_statement: "欢迎使用 Dify Chat UI！这是一个示例对话应用。", // 开场白
+      opening_statement: "欢迎使用 Dify Chat UI！", // 开场白
       file_upload: {
         image: {
           enabled: false,
