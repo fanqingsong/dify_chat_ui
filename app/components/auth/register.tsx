@@ -41,7 +41,12 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
         setIsLoading(true)
 
         try {
-            await auth.register({ name, email, password })
+            await auth.register({
+                username: name,
+                name,
+                email,
+                password
+            })
             Toast.notify({
                 type: 'success',
                 message: t('auth.RegisterSuccess'),

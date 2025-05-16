@@ -27,10 +27,10 @@ export interface LoginRequest {
 
 // 用户注册请求
 export interface RegisterRequest {
-    name: string;
+    name?: string;
     email: string;
     password: string;
-    username?: string; // 兼容nextauth-adapter
+    username?: string;
 }
 
 // 认证响应

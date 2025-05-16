@@ -134,39 +134,39 @@ export default function UserManagement() {
                                                 <div className="text-sm text-gray-500">
                                                     {user.email}
                                                 </div>
-                                                {user.isAdmin && (
-                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                                        管理员
-                                                    </span>
-                                                )}
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span
                                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
                                                 }`}
                                         >
                                             {user.isActive ? '已激活' : '未激活'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-normal text-sm text-gray-500">
-                                        {user.roles && user.roles.length > 0 ? (
-                                            <div className="flex flex-wrap gap-1">
-                                                {user.roles.map(userRole => (
+                                        <div className="flex flex-wrap gap-1">
+                                            {user.isAdmin && (
+                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                    管理员
+                                                </span>
+                                            )}
+                                            {user.roles && user.roles.length > 0 ? (
+                                                user.roles.map(userRole => (
                                                     <span
                                                         key={userRole.id}
                                                         className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
                                                     >
                                                         {userRole.role?.name || '未知角色'}
                                                     </span>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            '无角色'
-                                        )}
+                                                ))
+                                            ) : (
+                                                !user.isAdmin && <span className="text-gray-400">无角色</span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {user.createdAt ? new Date(user.createdAt).toLocaleString() : '未知'}

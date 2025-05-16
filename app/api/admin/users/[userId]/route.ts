@@ -36,7 +36,14 @@ export async function GET(
 
         // 获取用户（不包括密码）
         const user = await prisma.user.findUnique({
-            where: { id: userId }
+            where: { id: userId },
+            include: {
+                roles: {
+                    include: {
+                        role: true
+                    }
+                }
+            }
         });
 
         if (!user) {
@@ -46,21 +53,7 @@ export async function GET(
             );
         }
 
-        // 单独获取用户的角色
-        const userRoles = await prisma.$queryRaw`
-            SELECT "UserRoles".id, "UserRoles"."roleId", "Role".name as "roleName", "Role".description
-            FROM "UserRoles"
-            JOIN "Role" ON "UserRoles"."roleId" = "Role".id
-            WHERE "UserRoles"."userId" = ${userId}
-        `;
-
-        // 合并用户信息和角色
-        const userWithRoles = {
-            ...user,
-            roles: userRoles
-        };
-
-        return NextResponse.json(userWithRoles);
+        return NextResponse.json(user);
     } catch (error: any) {
         console.error('获取用户错误:', error);
         return NextResponse.json(
@@ -147,20 +140,18 @@ export async function PUT(
         // 更新用户基础信息
         const updatedUser = await prisma.user.update({
             where: { id: userId },
-            data: updateData
+            data: updateData,
+            include: {
+                roles: {
+                    include: {
+                        role: true
+                    }
+                }
+            }
         });
-
-        // 获取更新后的角色
-        const updatedRoles = await prisma.$queryRaw`
-            SELECT "UserRoles".id, "UserRoles"."roleId", "Role".name as "roleName", "Role".description
-            FROM "UserRoles"
-            JOIN "Role" ON "UserRoles"."roleId" = "Role".id
-            WHERE "UserRoles"."userId" = ${userId}
-        `;
 
         return NextResponse.json({
             ...updatedUser,
-            roles: updatedRoles,
             message: '用户信息已更新'
         });
     } catch (error: any) {

@@ -192,9 +192,11 @@ const Header = ({
                 {userData.name && userData.email && userData.name !== userData.email && (
                   <div className="text-xs text-gray-500 truncate">{userData.email}</div>
                 )}
-                <div className="text-xs text-green-600 mt-1">
-                  isAdmin: {userData.isAdmin ? 'true' : 'false'}
-                </div>
+                {userData.isAdmin && (
+                  <div className="text-xs text-green-600 mt-1">
+                    isAdmin: true
+                  </div>
+                )}
               </div>
 
               {/* 管理员菜单选项 */}

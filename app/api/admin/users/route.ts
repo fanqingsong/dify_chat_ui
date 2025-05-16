@@ -26,39 +26,19 @@ export async function GET() {
             );
         }
 
-        // 获取所有用户
+        // 获取所有用户，包括他们的角色关联
         const users = await prisma.user.findMany({
+            include: {
+                roles: {
+                    include: {
+                        role: true
+                    }
+                }
+            },
             orderBy: { createdAt: 'desc' }
         });
 
-        // 获取所有用户角色
-        const userRoles = await prisma.$queryRaw`
-            SELECT ur."userId", ur."roleId", r.name as "roleName", r.description, ur.id 
-            FROM "UserRoles" ur
-            JOIN "Role" r ON ur."roleId" = r.id
-        `;
-
-        // 按用户ID组织角色数据
-        const rolesByUserId = {};
-        for (const ur of userRoles) {
-            if (!rolesByUserId[ur.userId]) {
-                rolesByUserId[ur.userId] = [];
-            }
-            rolesByUserId[ur.userId].push({
-                id: ur.id,
-                roleId: ur.roleId,
-                roleName: ur.roleName,
-                description: ur.description
-            });
-        }
-
-        // 合并用户和角色数据
-        const usersWithRoles = users.map(user => ({
-            ...user,
-            roles: rolesByUserId[user.id] || []
-        }));
-
-        return NextResponse.json(usersWithRoles);
+        return NextResponse.json(users);
     } catch (error: any) {
         console.error('获取用户列表错误:', error);
         return NextResponse.json(

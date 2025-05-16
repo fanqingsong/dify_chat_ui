@@ -77,7 +77,7 @@ export const register = async (userData: RegisterRequest): Promise<AuthResponse>
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                name: userData.username,
+                name: userData.name || userData.username,
                 email: userData.email,
                 password: userData.password
             })
