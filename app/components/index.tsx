@@ -19,7 +19,7 @@ import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import Loading from '@/app/components/base/loading'
 import { replaceVarWithValues, userInputsFormToPromptVariables } from '@/utils/prompt'
 import AppUnavailable from '@/app/components/app-unavailable'
-import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
+import { APP_INFO, isShowPrompt, promptTemplate, getCurrentAppConfig } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import useAuth from '@/hooks/use-auth'
@@ -32,7 +32,8 @@ const Main: FC<IMainProps> = () => {
   const { t } = useTranslation()
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
-  const hasSetAppConfig = APP_ID && API_KEY
+  const currentAppConfig = getCurrentAppConfig()
+  const hasSetAppConfig = currentAppConfig.appId && currentAppConfig.apiKey
   const { user } = useAuth()
 
   // 即使APP不可用，至少也显示基本界面
@@ -209,7 +210,7 @@ const Main: FC<IMainProps> = () => {
       setConversationIdChangeBecauseOfNew(false)
     }
     // trigger handleConversationSwitch
-    setCurrConversationId(id, APP_ID)
+    setCurrConversationId(id, currentAppConfig.appId)
     hideSidebar()
   }
 
@@ -331,7 +332,7 @@ const Main: FC<IMainProps> = () => {
             throw new Error(error)
           }
 
-          const _conversationId = getConversationIdFromStorage(APP_ID)
+          const _conversationId = getConversationIdFromStorage(currentAppConfig.appId)
           const isNotNewConversation = conversations.some(item => item.id === _conversationId)
 
           // fetch new conversation info
@@ -353,7 +354,7 @@ const Main: FC<IMainProps> = () => {
           setConversationList(conversations as ConversationItem[])
 
           if (isNotNewConversation)
-            setCurrConversationId(_conversationId, APP_ID, false)
+            setCurrConversationId(_conversationId, currentAppConfig.appId, false)
 
           setInited(true)
         } catch (e) {
@@ -544,7 +545,7 @@ const Main: FC<IMainProps> = () => {
           setConversationIdChangeBecauseOfNew(false)
           resetNewConversationInputs()
           setChatNotStarted()
-          setCurrConversationId(tempNewConversationId, APP_ID, true)
+          setCurrConversationId(tempNewConversationId, currentAppConfig.appId, true)
           setRespondingFalse()
         },
         onFile(file) {
@@ -745,7 +746,7 @@ const Main: FC<IMainProps> = () => {
   }
 
   const renderSidebar = () => {
-    if (!APP_ID || !APP_INFO || !promptConfig)
+    if (!currentAppConfig.appId || !APP_INFO || !promptConfig)
       return null
     return (
       <Sidebar

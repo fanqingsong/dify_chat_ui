@@ -8,6 +8,7 @@ import useAuth from '@/hooks/use-auth'
 import Toast from '@/app/components/base/toast'
 import AppIcon from '@/app/components/base/app-icon'
 import Link from 'next/link'
+import AppSelector from '@/app/components/app-selector'
 
 export type IHeaderProps = {
   title?: string | React.ReactNode
@@ -176,6 +177,9 @@ const Header = ({
       </div>
 
       <div className="flex items-center space-x-2">
+        {/* App Selector */}
+        <AppSelector />
+
         {/* 用户头像和下拉菜单 */}
         <div className="relative" ref={userMenuRef}>
           <button

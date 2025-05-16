@@ -4,6 +4,9 @@ const translation = {
     saved: '已保存',
     create: '已创建',
   },
+  appSelector: {
+    switchSuccess: '已切换到 {{appName}}',
+  },
   operation: {
     confirm: '确认',
     cancel: '取消',

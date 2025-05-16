@@ -2,6 +2,14 @@ import type { Annotation } from './log'
 import type { Locale } from '@/i18n'
 import type { ThoughtItem } from '@/app/components/chat/type'
 
+export type DifyAppConfig = {
+  id: string;
+  name: string;
+  appId: string;
+  apiKey: string;
+  apiUrl: string;
+}
+
 export type PromptVariable = {
   key: string
   name: string

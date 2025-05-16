@@ -4,6 +4,9 @@ const translation = {
     saved: 'Saved',
     create: 'Created',
   },
+  appSelector: {
+    switchSuccess: 'Switched to {{appName}}',
+  },
   operation: {
     confirm: 'Confirm',
     cancel: 'Cancel',

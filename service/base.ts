@@ -1,4 +1,4 @@
-import { API_PREFIX } from '@/config'
+import { API_PREFIX, getCurrentAppConfig } from '@/config'
 import Toast from '@/app/components/base/toast'
 import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/chat/type'
 import type { VisionFile } from '@/types/app'
@@ -250,6 +250,9 @@ const handleStream = (
 }
 
 const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: IOtherOptions) => {
+  // 获取当前应用配置
+  const currentAppConfig = getCurrentAppConfig()
+
   // Add authorization header if token exists
   const token = getToken()
   if (token) {
@@ -258,6 +261,14 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
     fetchOptions.headers = {
       ...fetchOptions.headers,
       'Authorization': `Bearer ${token}`
+    }
+  }
+
+  // 添加 Dify API 密钥到请求头
+  if (currentAppConfig.apiKey) {
+    fetchOptions.headers = {
+      ...fetchOptions.headers,
+      'api-key': currentAppConfig.apiKey
     }
   }
 
