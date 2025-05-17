@@ -1,5 +1,6 @@
 import NextAuth, { DefaultSession } from "next-auth"
 import { JWT } from "next-auth/jwt"
+import type { UserRole } from "./user"
 
 declare module "next-auth" {
     /**
@@ -17,8 +18,10 @@ declare module "next-auth" {
      * 扩展User类型
      */
     interface User {
+        id: string;
         isAdmin: boolean;
         hasGEBRole: boolean;
+        roles?: UserRole[] | null;
     }
 }
 

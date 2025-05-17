@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcrypt';
+import { RESTRICTED_ROLE_NAME } from '../lib/constants';
 
 const prisma = new PrismaClient();
 
@@ -7,8 +8,8 @@ async function main() {
     // 创建默认角色
     const roles = [
         {
-            name: 'GEB',
-            description: 'GEB Role with special access'
+            name: RESTRICTED_ROLE_NAME,
+            description: `${RESTRICTED_ROLE_NAME} Role with special access`
         },
         {
             name: 'ERA',

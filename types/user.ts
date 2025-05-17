@@ -9,12 +9,15 @@ declare module 'next-auth' {
             email?: string | null;
             image?: string | null;
             isAdmin: boolean;
+            hasGEBRole: boolean;
             roles?: UserRole[] | null;
         };
     }
 
     interface User {
+        id: string;
         isAdmin: boolean;
+        hasGEBRole: boolean;
         roles?: UserRole[] | null;
     }
 }
@@ -65,6 +68,7 @@ export interface User {
     avatar?: string | null;    // 兼容nextauth-adapter
     isAdmin: boolean;
     isActive?: boolean;
+    hasGEBRole?: boolean;
     roles?: UserRole[] | null;
     createdAt?: Date;
     updatedAt?: Date;
@@ -86,6 +90,7 @@ export interface UserManagementRequest {
     roleIds?: string[];
     isActive?: boolean;
     password?: string;
+    hasGEBRole?: boolean;
 }
 
 // 角色管理请求

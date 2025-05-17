@@ -4,9 +4,7 @@ import { compare } from 'bcrypt';
 import { prisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import type { NextAuthOptions } from 'next-auth';
-
-// GEB角色名称常量
-const GEB_ROLE_NAME = 'GEB';
+import { RESTRICTED_ROLE_NAME } from '@/lib/constants';
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
@@ -54,11 +52,11 @@ export const authOptions: NextAuthOptions = {
                         throw new Error('您的账户尚未激活，请联系管理员');
                     }
 
-                    // 检查用户是否拥有GEB角色 (管理员可以绕过此检查)
-                    const hasGEBRole = user.roles.some(ur => ur.role.name === GEB_ROLE_NAME);
+                    // 检查用户是否拥有受限角色 (管理员可以绕过此检查)
+                    const hasRestrictedRole = user.roles.some(ur => ur.role.name === RESTRICTED_ROLE_NAME);
 
-                    if (!hasGEBRole && !user.isAdmin) {
-                        console.log('用户没有GEB角色权限:', credentials.email);
+                    if (!hasRestrictedRole && !user.isAdmin) {
+                        console.log(`用户没有${RESTRICTED_ROLE_NAME}角色权限:`, credentials.email);
                         throw new Error('您没有访问此应用的权限');
                     }
 
@@ -71,7 +69,7 @@ export const authOptions: NextAuthOptions = {
                         email: user.email,
                         image: user.image,
                         isAdmin: user.isAdmin,
-                        hasGEBRole
+                        hasGEBRole: hasRestrictedRole
                     };
                 } catch (error) {
                     console.error('授权过程中出错:', error);

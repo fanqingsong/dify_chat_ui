@@ -3,9 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { hash } from 'bcrypt';
 import { authOptions } from '../../../auth/[...nextauth]/route';
-
-// GEB角色名称常量
-const GEB_ROLE_NAME = 'GEB';
+import { RESTRICTED_ROLE_NAME } from '@/lib/constants';
 
 // 只允许管理员访问的中间件
 async function checkAdminAccess() {
@@ -56,8 +54,8 @@ export async function GET(
             );
         }
 
-        // 检查用户是否有GEB角色
-        const hasGEBRole = user.roles.some(ur => ur.role.name === GEB_ROLE_NAME);
+        // 检查用户是否有受限角色
+        const hasGEBRole = user.roles.some(ur => ur.role.name === RESTRICTED_ROLE_NAME);
 
         return NextResponse.json({
             ...user,
@@ -145,40 +143,40 @@ export async function PUT(
                 }
             }
         }
-        // 如果指定了GEB角色状态但没有提供roleIds
+        // 如果指定了受限角色状态但没有提供roleIds
         else if (hasGEBRole !== undefined) {
-            // 查找GEB角色
-            const gebRole = await prisma.role.findUnique({
-                where: { name: GEB_ROLE_NAME }
+            // 查找受限角色
+            const restrictedRole = await prisma.role.findUnique({
+                where: { name: RESTRICTED_ROLE_NAME }
             });
 
-            if (gebRole) {
+            if (restrictedRole) {
                 if (hasGEBRole) {
-                    // 检查是否已有GEB角色
+                    // 检查是否已有受限角色
                     const hasRole = await prisma.userRoles.findFirst({
                         where: {
                             userId,
                             role: {
-                                name: GEB_ROLE_NAME
+                                name: RESTRICTED_ROLE_NAME
                             }
                         }
                     });
 
                     if (!hasRole) {
-                        // 添加GEB角色
+                        // 添加受限角色
                         await prisma.userRoles.create({
                             data: {
                                 userId,
-                                roleId: gebRole.id
+                                roleId: restrictedRole.id
                             }
                         });
                     }
                 } else {
-                    // 移除GEB角色
+                    // 移除受限角色
                     await prisma.userRoles.deleteMany({
                         where: {
                             userId,
-                            roleId: gebRole.id
+                            roleId: restrictedRole.id
                         }
                     });
                 }
@@ -198,8 +196,8 @@ export async function PUT(
             }
         });
 
-        // 检查是否有GEB角色
-        const updatedHasGEBRole = updatedUser.roles.some(ur => ur.role.name === GEB_ROLE_NAME);
+        // 检查是否有受限角色
+        const updatedHasGEBRole = updatedUser.roles.some(ur => ur.role.name === RESTRICTED_ROLE_NAME);
 
         return NextResponse.json({
             ...updatedUser,

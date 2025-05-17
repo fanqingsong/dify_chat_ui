@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useAuth from '@/hooks/use-auth'
 import Toast from '@/app/components/base/toast'
+import { RESTRICTED_ROLE_NAME } from '@/lib/constants'
 
 interface LoginProps {
     onSwitchToRegister: () => void
@@ -40,7 +41,7 @@ const Login = ({ onSwitchToRegister }: LoginProps) => {
             let errorMessage = error.message || t('auth.LoginFailed')
 
             if (errorMessage.includes('没有访问此应用的权限')) {
-                errorMessage = '您没有访问此应用的权限。此应用仅限具有GEB角色的用户访问。'
+                errorMessage = `您没有访问此应用的权限。此应用仅限具有${RESTRICTED_ROLE_NAME}角色的用户访问。`
             }
 
             Toast.notify({

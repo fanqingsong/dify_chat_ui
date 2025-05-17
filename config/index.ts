@@ -1,4 +1,5 @@
 import type { AppInfo } from '@/types/app'
+import { RESTRICTED_ROLE_NAME } from '@/lib/constants'
 
 // APP 配置接口
 export interface DifyAppConfig {
@@ -26,11 +27,11 @@ export const DIFY_APPS: DifyAppConfig[] = [
     /*
     {
         id: 'app2',
-        name: 'GEB',
+        name: RESTRICTED_ROLE_NAME,
         appId: `${process.env.NEXT_PUBLIC_APP_ID1 || ''}`,
         apiKey: `${process.env.NEXT_PUBLIC_APP_KEY1 || ''}`,
         apiUrl: `${process.env.NEXT_PUBLIC_API_URL1 || ''}`,
-        description: 'GEB Agent',
+        description: `${RESTRICTED_ROLE_NAME} Agent`,
     },
     */
     // 可以继续添加更多应用
