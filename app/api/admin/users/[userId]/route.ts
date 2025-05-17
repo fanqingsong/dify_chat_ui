@@ -4,6 +4,9 @@ import { getServerSession } from 'next-auth';
 import { hash } from 'bcrypt';
 import { authOptions } from '../../../auth/[...nextauth]/route';
 
+// GEB角色名称常量
+const GEB_ROLE_NAME = 'GEB';
+
 // 只允许管理员访问的中间件
 async function checkAdminAccess() {
     const session = await getServerSession(authOptions);
@@ -53,7 +56,13 @@ export async function GET(
             );
         }
 
-        return NextResponse.json(user);
+        // 检查用户是否有GEB角色
+        const hasGEBRole = user.roles.some(ur => ur.role.name === GEB_ROLE_NAME);
+
+        return NextResponse.json({
+            ...user,
+            hasGEBRole
+        });
     } catch (error: any) {
         console.error('获取用户错误:', error);
         return NextResponse.json(
@@ -82,7 +91,7 @@ export async function PUT(
         const resolvedParams = await params;
         const userId = resolvedParams.userId;
 
-        const { roleIds, isActive, password } = await request.json();
+        const { roleIds, isActive, password, hasGEBRole } = await request.json();
 
         // 检查用户是否存在
         const existingUser = await prisma.user.findUnique({
@@ -136,6 +145,45 @@ export async function PUT(
                 }
             }
         }
+        // 如果指定了GEB角色状态但没有提供roleIds
+        else if (hasGEBRole !== undefined) {
+            // 查找GEB角色
+            const gebRole = await prisma.role.findUnique({
+                where: { name: GEB_ROLE_NAME }
+            });
+
+            if (gebRole) {
+                if (hasGEBRole) {
+                    // 检查是否已有GEB角色
+                    const hasRole = await prisma.userRoles.findFirst({
+                        where: {
+                            userId,
+                            role: {
+                                name: GEB_ROLE_NAME
+                            }
+                        }
+                    });
+
+                    if (!hasRole) {
+                        // 添加GEB角色
+                        await prisma.userRoles.create({
+                            data: {
+                                userId,
+                                roleId: gebRole.id
+                            }
+                        });
+                    }
+                } else {
+                    // 移除GEB角色
+                    await prisma.userRoles.deleteMany({
+                        where: {
+                            userId,
+                            roleId: gebRole.id
+                        }
+                    });
+                }
+            }
+        }
 
         // 更新用户基础信息
         const updatedUser = await prisma.user.update({
@@ -150,8 +198,12 @@ export async function PUT(
             }
         });
 
+        // 检查是否有GEB角色
+        const updatedHasGEBRole = updatedUser.roles.some(ur => ur.role.name === GEB_ROLE_NAME);
+
         return NextResponse.json({
             ...updatedUser,
+            hasGEBRole: updatedHasGEBRole,
             message: '用户信息已更新'
         });
     } catch (error: any) {

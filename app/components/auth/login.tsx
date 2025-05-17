@@ -37,9 +37,15 @@ const Login = ({ onSwitchToRegister }: LoginProps) => {
                 message: t('auth.LoginSuccess'),
             })
         } catch (error: any) {
+            let errorMessage = error.message || t('auth.LoginFailed')
+
+            if (errorMessage.includes('没有访问此应用的权限')) {
+                errorMessage = '您没有访问此应用的权限。此应用仅限具有GEB角色的用户访问。'
+            }
+
             Toast.notify({
                 type: 'error',
-                message: error.message || t('auth.LoginFailed'),
+                message: errorMessage,
             })
         } finally {
             setIsLoading(false)

@@ -5,6 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import type { NextAuthOptions } from 'next-auth';
 
+// GEB角色名称常量
+const GEB_ROLE_NAME = 'GEB';
+
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
@@ -22,7 +25,14 @@ export const authOptions: NextAuthOptions = {
                 try {
                     // 查找用户
                     const user = await prisma.user.findUnique({
-                        where: { email: credentials.email }
+                        where: { email: credentials.email },
+                        include: {
+                            roles: {
+                                include: {
+                                    role: true
+                                }
+                            }
+                        }
                     });
 
                     if (!user || !user.password) {
@@ -44,6 +54,14 @@ export const authOptions: NextAuthOptions = {
                         throw new Error('您的账户尚未激活，请联系管理员');
                     }
 
+                    // 检查用户是否拥有GEB角色 (管理员可以绕过此检查)
+                    const hasGEBRole = user.roles.some(ur => ur.role.name === GEB_ROLE_NAME);
+
+                    if (!hasGEBRole && !user.isAdmin) {
+                        console.log('用户没有GEB角色权限:', credentials.email);
+                        throw new Error('您没有访问此应用的权限');
+                    }
+
                     console.log('用户登录成功:', credentials.email);
 
                     // 返回用户数据
@@ -52,7 +70,8 @@ export const authOptions: NextAuthOptions = {
                         name: user.name,
                         email: user.email,
                         image: user.image,
-                        isAdmin: user.isAdmin
+                        isAdmin: user.isAdmin,
+                        hasGEBRole
                     };
                 } catch (error) {
                     console.error('授权过程中出错:', error);
@@ -66,6 +85,7 @@ export const authOptions: NextAuthOptions = {
             if (token && session.user) {
                 session.user.id = token.id as string;
                 session.user.isAdmin = token.isAdmin as boolean;
+                session.user.hasGEBRole = token.hasGEBRole as boolean;
             }
             return session;
         },
@@ -73,6 +93,7 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.isAdmin = user.isAdmin as boolean;
+                token.hasGEBRole = user.hasGEBRole as boolean;
             }
             return token;
         }
