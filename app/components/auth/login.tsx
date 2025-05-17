@@ -41,7 +41,7 @@ const Login = ({ onSwitchToRegister }: LoginProps) => {
             let errorMessage = error.message || t('auth.LoginFailed')
 
             if (errorMessage.includes('没有访问此应用的权限')) {
-                errorMessage = `您没有访问此应用的权限。此应用仅限具有${RESTRICTED_ROLE_NAME}角色的用户访问。`
+                errorMessage = `您没有访问此应用的权限。`
             }
 
             Toast.notify({
