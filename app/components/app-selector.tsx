@@ -49,10 +49,10 @@ const AppSelector = () => {
         setCurrentApp(app)
         setIsOpen(false)
 
-        // 显示成功提示
+        // 显示成功提示 - 直接使用固定文本，避免翻译问题
         Toast.notify({
             type: 'success',
-            message: t('appSelector.switchSuccess', { appName: app.name }) || `已切换到 ${app.name}`,
+            message: `已切换到 ${app.name}`,
         })
 
         // 刷新页面以应用新的配置

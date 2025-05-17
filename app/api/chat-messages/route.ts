@@ -1,5 +1,5 @@
 import { type NextRequest } from 'next/server'
-import { getInfo, getClient } from '@/app/api/utils/common'
+import { getInfo, getClient, client } from '@/app/api/utils/common'
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
     response_mode: responseMode,
   } = body
   const { user } = getInfo(request)
-  const client = getClient()
-  const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
+  const res = await client().createChatMessage(inputs, query, user, responseMode, conversationId, files)
   return new Response(res.data as any)
 }

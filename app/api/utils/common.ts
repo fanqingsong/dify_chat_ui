@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server'
 import { ChatClient } from 'dify-client'
 import { v4 } from 'uuid'
-import { API_KEY, API_URL, APP_ID, getCurrentAppConfig } from '@/config'
+import { getAppId, getApiKey, getApiUrl, getCurrentAppConfig } from '@/config'
 
 // Create a function to get the user prefix based on the current app configuration
 const getUserPrefix = () => {
@@ -29,8 +29,8 @@ export const getClient = () => {
     return new ChatClient(config.apiKey, config.apiUrl || undefined);
 }
 
-// 每次获取最新的客户端实例
-export const client = (() => {
+// 每次获取最新的客户端实例，不要缓存
+export const client = () => {
     const config = getCurrentAppConfig();
     return new ChatClient(config.apiKey, config.apiUrl || undefined);
-})(); 
+} 

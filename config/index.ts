@@ -16,21 +16,23 @@ export interface DifyAppConfig {
 export const DIFY_APPS: DifyAppConfig[] = [
     {
         id: 'default',
-        name: 'Default App',
+        name: 'General',
         appId: `${process.env.NEXT_PUBLIC_APP_ID || ''}`,
         apiKey: `${process.env.NEXT_PUBLIC_APP_KEY || ''}`,
         apiUrl: `${process.env.NEXT_PUBLIC_API_URL || ''}`,
         isDefault: true,
     },
-    // 示例应用配置 - 需要替换为真实的配置
+    // 第二个应用配置 - 暂时注释掉，保留代码结构
+    /*
     {
         id: 'app2',
-        name: '第二个应用',
-        appId: 'your-second-app-id',
-        apiKey: 'your-second-app-key',
-        apiUrl: 'https://api.dify.ai/v1',
-        description: '示例应用 - 需要替换为真实的应用配置',
+        name: 'GEB',
+        appId: `${process.env.NEXT_PUBLIC_APP_ID1 || ''}`,
+        apiKey: `${process.env.NEXT_PUBLIC_APP_KEY1 || ''}`,
+        apiUrl: `${process.env.NEXT_PUBLIC_API_URL1 || ''}`,
+        description: 'GEB Agent',
     },
+    */
     // 可以继续添加更多应用
 ]
 
@@ -53,10 +55,10 @@ export const getCurrentAppConfig = (): DifyAppConfig => {
     return DIFY_APPS.find(app => app.isDefault) || DIFY_APPS[0];
 }
 
-// 兼容旧代码的导出
-export const APP_ID = getCurrentAppConfig().appId
-export const API_KEY = getCurrentAppConfig().apiKey
-export const API_URL = getCurrentAppConfig().apiUrl
+// 获取动态的应用配置参数函数，不再使用固定的导出变量
+export const getAppId = () => getCurrentAppConfig().appId;
+export const getApiKey = () => getCurrentAppConfig().apiKey;
+export const getApiUrl = () => getCurrentAppConfig().apiUrl;
 
 export const APP_INFO: AppInfo = {
     title: 'Chat APP',

@@ -35,7 +35,7 @@ export async function POST(
 
     // 重命名对话
     try {
-      const { data } = await client.renameConversation(conversationId, name, user, auto_generate)
+      const { data } = await client().renameConversation(conversationId, name, user, auto_generate)
       return NextResponse.json(data)
     } catch (error: any) {
       console.error('重命名对话出错:', error.message)
